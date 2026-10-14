@@ -307,18 +307,29 @@ def generar_reporte_consumos(
     tarifa_vigente = database.obtener_tarifa()
     reporte_resultado = []
 
+    # 1. NORMALIZAR FECHAS DE FILTRO (elimina tzinfo para evitar error naive vs aware)
+    if fecha_inicio is not None and fecha_inicio.tzinfo is not None:
+        fecha_inicio = fecha_inicio.replace(tzinfo=None)
+
+    if fecha_fin is not None and fecha_fin.tzinfo is not None:
+        fecha_fin = fecha_fin.replace(tzinfo=None)
+
     for item in database.consumos:
+        # Obtenemos el cliente dueño de la lectura
         cliente = database.buscar_cliente(item["id_cliente"])
 
         # REGLA DEL EXAMEN: Mostrar únicamente información correspondiente a clientes activos
         if not cliente or not cliente["active"]:
             continue
 
+        # Normalizar fecha de la lectura almacenada
         fecha_lectura = item["fecha_registro"]
+        fecha_lectura_comp = fecha_lectura.replace(tzinfo=None) if fecha_lectura.tzinfo is not None else fecha_lectura
 
-        if fecha_inicio and fecha_lectura < fecha_inicio:
+        # Filtro de rango de fechas seguro
+        if fecha_inicio and fecha_lectura_comp < fecha_inicio:
             continue
-        if fecha_fin and fecha_lectura > fecha_fin:
+        if fecha_fin and fecha_lectura_comp > fecha_fin:
             continue
 
         total_a_pagar = round(item["consumo_agua"] * tarifa_vigente, 2)
