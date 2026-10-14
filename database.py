@@ -1,11 +1,5 @@
 from datetime import datetime
 
-# ============================================================
-# ALMACENAMIENTO EN MEMORIA (ESTADO GLOBAL VOLÁTIL)
-# ============================================================
-# Por especificación del examen, no se utiliza base de datos relacional
-# ni archivos físicos. Los datos residen en la memoria RAM del servidor.
-
 # Tarifa base inicial definida por el examen
 tarifa_actual: float = 0.50
 
@@ -21,7 +15,7 @@ clientes = [
         "id_cliente": 2,
         "nombre_cliente": "María García",
         "direccion": "Calle Hidalgo 250, San Nicolás",
-        "active": False  # Cliente inactivo precargado para probar reglas de negocio
+        "active": False
     }
 ]
 
@@ -35,9 +29,7 @@ consumos = [
 ]
 
 
-# ============================================================
 # FUNCIONES AUXILIARES DE GESTIÓN Y BÚSQUEDA
-# ============================================================
 
 def obtener_tarifa() -> float:
     """Retorna la tarifa actual por m3."""

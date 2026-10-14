@@ -11,11 +11,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-
-# ============================================================
 # MÓDULO 1: GESTIÓN DE CLIENTES
-# ============================================================
-
 @app.get(
     "/v1/api/clientes",
     response_model=schemas.ClientesListResponse,
@@ -105,7 +101,6 @@ def actualizar_cliente(id_cliente: int, datos_actualizados: schemas.ClienteUpdat
             detail=f"No se puede actualizar: Cliente con ID {id_cliente} no existe."
         )
 
-    # Actualizar solo los campos que fueron enviados en la petición
     if datos_actualizados.nombre_cliente is not None:
         cliente["nombre_cliente"] = datos_actualizados.nombre_cliente
 
@@ -137,7 +132,6 @@ def desactivar_cliente(id_cliente: int):
             detail=f"No se puede desactivar: Cliente con ID {id_cliente} no existe."
         )
 
-    # Realizamos la baja lógica solicitada
     cliente["active"] = False
 
     return {
@@ -146,10 +140,7 @@ def desactivar_cliente(id_cliente: int):
         "cliente": cliente
     }
 
-# ============================================================
 # MÓDULO 2: GESTIÓN DE TARIFA
-# ============================================================
-
 @app.get(
     "/v1/api/tarifa",
     response_model=schemas.TarifaResponse,
@@ -186,10 +177,7 @@ def actualizar_tarifa(tarifa_data: schemas.TarifaUpdate):
         "tarifa_actual": nueva_tarifa
     }
 
-# ============================================================
 # MÓDULO 3: GESTIÓN DE CONSUMOS DE AGUA
-# ============================================================
-
 @app.get(
     "/v1/api/consumos",
     response_model=list[schemas.ConsumoResponse],
@@ -297,10 +285,7 @@ def actualizar_consumo(id_consumo: int, datos_actualizados: schemas.ConsumoUpdat
     return consumo
 
 
-# ============================================================
 # MÓDULO 4: REPORTE Y FACTURACIÓN CON FILTRO DE FECHAS
-# ============================================================
-
 @app.get(
     "/v1/api/reportes/consumos",
     response_model=schemas.ReporteResponse,
@@ -323,7 +308,6 @@ def generar_reporte_consumos(
     reporte_resultado = []
 
     for item in database.consumos:
-        # Obtenemos el cliente dueño de la lectura
         cliente = database.buscar_cliente(item["id_cliente"])
 
         # REGLA DEL EXAMEN: Mostrar únicamente información correspondiente a clientes activos
@@ -332,13 +316,11 @@ def generar_reporte_consumos(
 
         fecha_lectura = item["fecha_registro"]
 
-        # Filtro de rango de fechas
         if fecha_inicio and fecha_lectura < fecha_inicio:
             continue
         if fecha_fin and fecha_lectura > fecha_fin:
             continue
 
-        # Cálculo de facturación solicitado por el examen
         total_a_pagar = round(item["consumo_agua"] * tarifa_vigente, 2)
 
         reporte_resultado.append({
